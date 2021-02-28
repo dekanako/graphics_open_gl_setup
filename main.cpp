@@ -1,15 +1,13 @@
-#include <iostream>
-
 #include <GL/freeglut.h>
+#include <GL/glu.h>
 
-void myDisplay() {
-    glBegin(GL_POINTS);
-    glVertex2i(0, 0);
-    glVertex2i(0, -1);
-    glVertex2i(1, -1);
-    glVertex2i(-1, -1);
-    glVertex2i(-1, 1);
+void displayFunction() {
+
+    gluOrtho2D(-100, 100, -100, 100);
+
+
     glEnd();
+    glFlush();
 }
 
 int main(int argc, char *argv[]) {
@@ -18,7 +16,7 @@ int main(int argc, char *argv[]) {
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(100, 100);
     glutCreateWindow("TEST");
-    glutDisplayFunc(myDisplay);
+    glutDisplayFunc(displayFunction);
     glutMainLoop();
 
     return 0;
