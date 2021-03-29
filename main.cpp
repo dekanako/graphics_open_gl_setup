@@ -11,6 +11,7 @@ static const int top = 100;
 
 static const int groundY = 60;
 
+bool stop = false;
 void sky();
 
 void ground();
@@ -41,6 +42,8 @@ void trains();
 
 void movingTrains();
 
+void trafficLights();
+
 void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
     int i;
     int triangleAmount = 20; //# of triangles used to draw circle
@@ -60,8 +63,8 @@ void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
 }
 
 void mydisplay() {
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glMatrixMode (GL_PROJECTION);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(left, right, bottom, top);
 
@@ -72,10 +75,10 @@ void mydisplay() {
     hospital();
 
     flat();
-    trees();
+//    trees();
 
-//    road();
-//    cars();
+    road();
+    cars();
 
     rails();
     glutSwapBuffers();
@@ -113,11 +116,63 @@ void rails() {
         initialX = initialX + 10;
     }
 
+    trafficLights();
     movingTrains();
 }
-float trainX = 0;
+
+const float TRAFFIC_STAND_X = right - 10;
+
+void trafficLights() {
+    const float TRAFFIC_STAND_Y = UPPER_RAIL_Y;
+
+    const float LIGHT_CONTAINER_Y = TRAFFIC_STAND_Y + 10;
+    const float LIGHT_CONTAINER_X = TRAFFIC_STAND_X - 1.8;
+
+    //stand
+    glColor3ub(51, 51, 51);
+    glPushMatrix();
+    glTranslatef(TRAFFIC_STAND_X, TRAFFIC_STAND_Y, 0);
+    glScalef(0.2, 2.1, 0);
+    square();
+    glPopMatrix();
+
+    //lights container
+    glColor3ub(76, 76, 76);
+    glPushMatrix();
+    glTranslatef(LIGHT_CONTAINER_X, LIGHT_CONTAINER_Y, 0);
+    glScalef(0.8, 1.4, 0);
+    square();
+    glPopMatrix();
+
+    //LIGHTS
+    const float LIGHTS_X = LIGHT_CONTAINER_X + 2.4;
+    const float LIGHTS_Y = LIGHT_CONTAINER_Y + 2.4;
+    if (stop) {
+        glColor3ub(255, 0, 0);
+        drawFilledCircle(LIGHTS_X, LIGHTS_Y + 6, 1.5);
+
+        glColor3ub(0, 0, 0);
+        drawFilledCircle(LIGHTS_X, LIGHTS_Y + 2, 1.5);
+    } else {
+        glColor3ub(0, 0, 0);
+        drawFilledCircle(LIGHTS_X, LIGHTS_Y + 6, 1.5);
+
+        glColor3ub(0, 255, 0);
+        drawFilledCircle(LIGHTS_X, LIGHTS_Y + 2, 1.5);
+    }
+
+
+}
+
+float const speed = 0.006;
+float trainX = -40;
+float trainSpeed = speed;
+
 void movingTrains() {
-    trainX = trainX + 0.006;
+    if (trainX > right) {
+        trainX = -40;
+    }
+    trainX = trainX + trainSpeed;
     glPushMatrix();
     glTranslatef(trainX, DOWNER_RAIL_Y + 3, 0);
     trains();
@@ -126,56 +181,52 @@ void movingTrains() {
 
 void trains() {
     const int TRAIN_TIRES_Y = DOWNER_RAIL_Y + 3;
-    const float TRAIN_TIRES_X = left + 4;
 
     //hood dispenser
     glColor3ub(49, 153, 204);
     glPushMatrix();
-    glTranslatef(25,TRAIN_TIRES_Y + 10, 0);
-    glScalef(1, 1 , 0);
+    glTranslatef(25, TRAIN_TIRES_Y + 10, 0);
+    glScalef(1, 1, 0);
     square();
     glPopMatrix();
 
     //dispenser cup
     glColor3ub(0, 0, 0);
     glPushMatrix();
-    glTranslatef(24.2,TRAIN_TIRES_Y + 18, 0);
+    glTranslatef(24.2, TRAIN_TIRES_Y + 18, 0);
     glScalef(1.3, 0.3, 0);
     square();
     glPopMatrix();
 
-
-//train storage room
+    //train storage room
     glColor3ub(166, 42, 42);
     glPushMatrix();
-    glTranslatef(7,TRAIN_TIRES_Y + 3, 0);
-    glScalef(2, 2.2 , 0);
+    glTranslatef(7, TRAIN_TIRES_Y + 3, 0);
+    glScalef(2, 2.2, 0);
     square();
     glPopMatrix();
 
     //hood
     glColor3ub(166, 42, 42);
     glPushMatrix();
-    glTranslatef(19,TRAIN_TIRES_Y + 3, 0);
-    glScalef(1.5, 2.3 , 0);
+    glTranslatef(19, TRAIN_TIRES_Y + 3, 0);
+    glScalef(1.5, 2.3, 0);
     rectangle();
     glPopMatrix();
-
-
 
 
     //storage widnows
     glColor3ub(255, 255, 255);
     glPushMatrix();
-    glTranslatef(8.3,TRAIN_TIRES_Y + 4.5, 0);
-    glScalef(1.6, 1.8 , 0);
+    glTranslatef(8.3, TRAIN_TIRES_Y + 4.5, 0);
+    glScalef(1.6, 1.8, 0);
     square();
     glPopMatrix();
 
 
     glColor3ub(49, 153, 204);
     glPushMatrix();
-    glTranslatef(6,TRAIN_TIRES_Y, 0);
+    glTranslatef(6, TRAIN_TIRES_Y, 0);
     glScalef(3, 1, 0);
     rectangle();
     glPopMatrix();
@@ -183,12 +234,10 @@ void trains() {
     //hood
     glColor3ub(49, 153, 204);
     glPushMatrix();
-    glTranslatef(6,TRAIN_TIRES_Y, 0);
+    glTranslatef(6, TRAIN_TIRES_Y, 0);
     glScalef(3, 1, 0);
     rectangle();
     glPopMatrix();
-
-
 
 
     glColor3ub(255, 63, 4);
@@ -202,10 +251,9 @@ void trains() {
     glPopMatrix();
 
 
-
 }
 
-const int asphaltY = 10;
+const float asphaltY = 35;
 
 void cars() {
     int carX = 10;
@@ -236,6 +284,7 @@ void cars() {
 }
 
 void road() {
+    //Asphalt
     glColor3ub(61, 61, 92);
     glPushMatrix();
     glTranslatef(0, asphaltY, 0);
@@ -243,11 +292,12 @@ void road() {
     rectangle();
     glPopMatrix();
 
+    //street lines
     int initialLeft = 2;
     glColor3ub(255, 255, 255);
     for (int i = 0; i < 10; ++i) {
         glPushMatrix();
-        glTranslatef(initialLeft, 22, 0);
+        glTranslatef(initialLeft, asphaltY + 12, 0);
         glScalef(0.7, 0.5, 0);
         rectangle();
         glPopMatrix();
@@ -421,6 +471,19 @@ void sky() {
     drawFilledCircle(15, top - 10, 8);
 }
 
+void keyboard(unsigned char key, int x, int y) {
+    if (key == 'r') {
+        stop = true;
+        trainSpeed = 0.0;
+
+        glutPostRedisplay();
+    } else if (key == 'g') {
+        stop = false;
+        trainSpeed = speed;
+        glutPostRedisplay();
+    }
+
+}
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitWindowSize(1200, 785);
@@ -429,6 +492,7 @@ int main(int argc, char **argv) {
     glutDisplayFunc(mydisplay);
     glutIdleFunc(mydisplay);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutKeyboardFunc(keyboard);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glutMainLoop();
